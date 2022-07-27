@@ -1,37 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
+<%- layout('./layouts/boilerplate') %>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Make a New Product</title>
-</head>
+    <div class="row">
+        <h1 class="text-center">Make a new Campground!</h1>
+        <div class="col-6 offset-3">
+            <form action="/campgrounds" method="POST">
+                <div class="my-3">
+                    <label class="form-label" for="title">Campground Name</label>
+                    <input class="form-control" type="text" name="title">
+                </div>
 
-<body>
-    <h1>Add a Product</h1>
-    <form action="/products" method="POST">
-        <section><label for="name">Product Name</label>
-            <input type="text" name="name" placeholder="product name">
-        </section>
-        <section><label for="price">Product Price (Unit)</label>
-            <input type="number" name="price" placeholder="Price" min="0">
-        </section>
-        <section>
-            <label for="category">Product Category</label>
-            <select name="category" id="category">
-                <% for (let category of categories) { %>
-                    <option value="<%=category%>">
-                        <%=category%>
-                    </option>
-                    <% } %>
-            </select>
-        </section>
-        <section>
-            <button>Submit</button>
-        </section>
-        <a href="/products">Cancel</a>
-    </form>
-</body>
+                <div class="my-3">
+                    <label class="form-label" for="location">Location</label>
+                    <input class="form-control" type="text" name="location">
 
-</html>
+                </div>
+                <div class="my-3">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" type="text" name="description"></textarea>
+                </div>
+                <div class="my-3">
+                    <label class="mb-1" for="price">Campground Price</label>
+                    <div class="input-group">
+                        <span class=" input-group-text" id="price-label">$</span>
+                        <input type="text" class="form-control" placeholder="0.00" aria-label="Username" name="price"
+                            id="price" aria-describedby="price-label">
+                    </div>
+                </div>
+                <div class="my-3">
+                    <label for="image" class="form-label">Want to add an image? Enter a URL!</label>
+                    <input class='form-control' type="text" name="image">
+                </div>
+                <button class="btn btn-success  mb-2">Submit</Button>
+
+            </form>
+            <div>
+                <a href="/campgrounds">Back to campgrounds</a>
+            </div>
+
+        </div>
+    </div>
