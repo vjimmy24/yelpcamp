@@ -1,36 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
+<%- layout('./layouts/boilerplate') %>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit</title>
-</head>
+    <div class="row">
+        <div class="text-center">
+            <h1>Editing Campground
+            </h1>
+        </div>
+        <div class="col-6 offset-3">
+            <form action="/campgrounds/<%=camp.id%>?_method=PUT" method="POST">
+                <section class="my-3">
+                    <label class="form-label" for="title">Name</label>
+                    <input class="form-control" type="text" name="title" value="<%=camp.title%>">
+                </section class="my-3">
 
-<body>
-    <form action="/products/<%=product._id  %>?_method=PUT" method="POST">
-        <section><label for="name">Product Name</label>
-            <input type="text" name="name" placeholder="product name" value="<%= product.name %> ">
-        </section>
-        <section><label for="price">Product Price (Unit)</label>
-            <input type="number" name="price" placeholder="Price" min="0" value="<%=product.price%>">
-        </section>
-        <section>
-            <label for="category">Product Category</label>
-            <select name="category" id="category">
-                <% for (let category of categories) { %>
-                    <option value="<%=category%>" <%=product.category===category ? 'selected' : '' %>>
-                        <%=category%>
-                    </option>
-                    <% } %>
-            </select>
-        </section>
-        <section>
-            <button>Submit</button>
-        </section>
-    </form>
-    <a href="/products/<%=product._id%>">Cancel</a>
-</body>
+                <div class="my-3">
+                    <label class="form-label" for="location">Location</label>
+                    <input class="form-control" type="text" name="location" value="<%=camp.location%>">
+                </div>
+
+                <div class="my-3">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" type="text" name="description"><%=camp.description%></textarea>
+                </div>
+
+                <div class="my-3">
+                    <label class="mb-1" for="price">Campground Price</label>
+                    <div class="input-group">
+                        <span class=" input-group-text" id="price-label">$</span>
+                        <input type="text" class="form-control" placeholder="0.00" aria-label="Username" name="price"
+                            id="price" aria-describedby="price-label">
+                    </div>
+
+                    <div class="my-3">
+                        <label for="image" class="form-label">Want to add an image? Enter a URL!</label>
+                        <input class='form-control' type="text" name="image">
+                    </div>
+                    <section class="my-2">
+                        <button class="btn btn-success">Update Campground</button>
+                    </section>
+                    <section class="my-2">
+                        <a href="/campgrounds">Back to Campgrounds</a>
+                    </section>
+            </form>
+        </div>
+    </div>
 
 </html>
