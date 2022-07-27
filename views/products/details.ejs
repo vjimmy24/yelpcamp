@@ -1,35 +1,42 @@
-<!DOCTYPE html>
-<html lang="en">
+<%- layout('./layouts/boilerplate') %>
 
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        <%= product.name %>
-    </title>
-</head>
+    <div class="row">
+        <div class="col-6 offset-3 mt-2">
+            <div class="card mb-2">
+                <img src=<%=camp.image%> class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <%=camp.title%>
+                    </h5>
+                    <p class="card-text">
+                        <%=camp.description%>
+                    </p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <h5>Location</h5>
+                        <div>
+                            <p>
+                                <%=camp.location%>
+                            </p>
+                        </div>
+                    </li>
+                    <li class="list-group-item">
+                        <h5>Price</h5>
+                        <div class="card-text">
+                            <p>
+                                $<%=camp.price%>/Night
+                            </p>
+                        </div>
+                    </li>
+                </ul>
 
-<body>
-    <h1>
-        <%= product.name %>
-    </h1>
-    <ul>
-        <li>
-            Price: <%=product.price %>
-        </li>
-        <li>
-            <a href="/products?category=<%= product.category %>">
-                <%= product.category %>
-            </a>
-        </li>
-    </ul>
-
-    <a href="/products/<%=product._id%>/edit">Edit</a>
-    <a href="/products">Back to All Products</a>
-    <form action="/products/<%=product._id%>?_method=DELETE" method="POST">
-        <BUTTOn>Delete Product</BUTTOn>
-    </form>
-</body>
-
-</html>
+                <div class="card-body">
+                    <a href="/campgrounds/<%=camp._id%>/edit" class="card-link btn btn-primary">Edit Campground</a>
+                    <form class="d-inline" action="/campgrounds/<%=camp._id%>?_method=DELETE" method="POST">
+                        <button class="btn btn-danger">Delete Campground</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
