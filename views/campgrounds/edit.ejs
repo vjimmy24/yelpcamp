@@ -1,0 +1,58 @@
+<%- layout('./layouts/boilerplate') %>
+
+    <div class="row">
+        <div class="text-center">
+            <h1>Editing Campground
+            </h1>
+        </div>
+        <div class="col-6 offset-3">
+            <form action="/campgrounds/<%=camp.id%>?_method=PUT" method="POST" class="validated-form" novalidate>
+                <section class="my-3">
+                    <label class="form-label" for="title">Name</label>
+                    <input class="form-control" type="text" name="title" value="<%=camp.title%>" required>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
+                </section class="my-3">
+
+                <div class="my-3">
+                    <label class="form-label" for="location">Location</label>
+                    <input class="form-control" type="text" name="location" value="<%=camp.location%>" required>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
+                </div>
+
+                <div class="my-3">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" type="text" name="description"
+                        required><%=camp.description%> </textarea>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
+                </div>
+
+                <div class="my-3">
+                    <label class="mb-1" for="price">Campground Price</label>
+                    <div class="input-group">
+                        <span class=" input-group-text" id="price-label">$</span>
+                        <input type="text" class="form-control" placeholder="0.00" aria-label="Username" name="price"
+                            id="price" aria-describedby="price-label" required>
+
+                    </div>
+
+                    <div class="my-3">
+                        <label for="image" class="form-label">Want to add an image? Enter a URL!</label>
+                        <input class='form-control' type="text" name="image" required>
+
+                    </div>
+                </div>
+                <section class="my-2">
+                    <button class="btn btn-success">Update Campground</button>
+                </section>
+                <section class="my-2">
+                    <a href="/campgrounds">Back to Campgrounds</a>
+                </section>
+            </form>
+        </div>
+    </div>

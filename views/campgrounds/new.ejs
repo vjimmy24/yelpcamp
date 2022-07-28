@@ -1,0 +1,55 @@
+<%- layout('./layouts/boilerplate') %>
+
+    <div class="row">
+        <h1 class="text-center">Make a new Campground!</h1>
+        <div class="col-6 offset-3">
+            <form action="/campgrounds" method="POST" novalidate class="validated-form">
+                <!-- Location component -->
+                <div class="my-3">
+                    <label class="form-label" for="title">Campground Name</label>
+                    <input class="form-control" type="text" name="title" id='title' required>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
+                </div>
+                <!-- Location component -->
+                <div class="my-3">
+                    <label class="form-label" for="location">Location</label>
+                    <input class="form-control" type="text" name="location" required>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
+                </div>
+                <!-- Description component -->
+                <div class="my-3">
+                    <label for="description">Description</label>
+                    <textarea class="form-control" type="text" name="description" required></textarea>
+
+                </div>
+                <!-- Price component -->
+                <div class="my-3">
+                    <label class="mb-1" for="price">Campground Price</label>
+                    <div class="input-group">
+                        <span class=" input-group-text" id="price-label">$</span>
+                        <input type="text" class="form-control" placeholder="0.00" aria-label="Username" name="price"
+                            id="price" aria-describedby="price-label" required>
+                    </div>
+                </div>
+                <!-- Image component -->
+                <div class="my-3">
+                    <label for="image" class="form-label">Want to add an image? Enter a URL!</label>
+                    <input class='form-control' type="text" name="image" required>
+                    <div class="valid-feedback">
+                        Looks good!
+                    </div>
+                </div>
+                <!-- Submit -->
+                <button class="btn btn-success  mb-2">Submit</Button>
+
+            </form>
+            <div>
+                <a href="/campgrounds">Back to campgrounds</a>
+            </div>
+
+        </div>
+    </div>
