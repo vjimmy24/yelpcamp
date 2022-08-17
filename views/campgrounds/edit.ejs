@@ -6,10 +6,13 @@
             </h1>
         </div>
         <div class="col-6 offset-3">
-            <form action="/campgrounds/<%=camp.id%>?_method=PUT" method="POST" class="validated-form" novalidate>
+            <form action="/campgrounds/<%=camp.id%>?_method=PUT" method="POST" class="needs-validation" novalidate
+                enctype="multipart/form-data">
+
                 <section class="my-3">
                     <label class="form-label" for="title">Name</label>
-                    <input class="form-control" type="text" name="title" value="<%=camp.title%>" required>
+                    <input class="form-control" type="text" name="camp[title]" id='title' value="<%=camp.title%>"
+                        required>
                     <div class="valid-feedback">
                         Looks good!
                     </div>
@@ -17,15 +20,16 @@
 
                 <div class="my-3">
                     <label class="form-label" for="location">Location</label>
-                    <input class="form-control" type="text" name="location" value="<%=camp.location%>" required>
+                    <input class="form-control" type="text" name="camp[location]" id="title" value="<%=camp.location%>"
+                        required>
                     <div class="valid-feedback">
                         Looks good!
                     </div>
                 </div>
 
                 <div class="my-3">
-                    <label for="description">Description</label>
-                    <textarea class="form-control" type="text" name="description"
+                    <label class="form-label" for="description">Description</label>
+                    <textarea class="form-control" type="text" id="description" name="camp[description]"
                         required><%=camp.description%> </textarea>
                     <div class="valid-feedback">
                         Looks good!
@@ -33,25 +37,48 @@
                 </div>
 
                 <div class="my-3">
-                    <label class="mb-1" for="price">Campground Price</label>
+                    <label class="form-label" class="mb-1" for="price">Campground Price</label>
                     <div class="input-group">
                         <span class=" input-group-text" id="price-label">$</span>
-                        <input type="text" class="form-control" placeholder="0.00" aria-label="Username" name="price"
-                            id="price" aria-describedby="price-label" required>
+                        <input type="text" class="form-control" placeholder="0.00" aria-label="Username"
+                            name="camp[price]" id="price" aria-describedby="price-label" value="<%=camp.price%>"
+                            required>
 
                     </div>
 
+                    <!-- <div class="my-3">
+                        <label for="image" class="form-label"></label>
+                        <input type="file" name="image" multiple>
+                    </div> -->
                     <div class="my-3">
-                        <label for="image" class="form-label">Want to add an image? Enter a URL!</label>
-                        <input class='form-control' type="text" name="image" required>
+                        <label for="image" class="form-label">Want to add an image?</label>
+                        <input class="form-control" type="file" id="image" name="image" multiple>
+                    </div>
 
+                    <div class="mb-3">
+                        <h4> Want to Delete Images?</h5>
+                            <div class="row row-cols-1 row-cols-md-4 g-4 mb-3">
+                                <% camp.images.forEach((image, index)=> { %>
+                                    <div class="col">
+                                        <div class="card">
+                                            <img class="card-img" src="<%= image.thumbnail %>" alt="">
+                                            <div class="card-img-overlay text-end pt-1 pe-2">
+                                                <label class="visually-hidden" for="image-<%= index %>">Delete
+                                                    Image</label>
+                                                <input class="form-check-input" type="checkbox" name="deleteImages[]"
+                                                    value="<%= image.fileName %>" id="image-<%= index %>">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% }) %>
+                            </div>
                     </div>
                 </div>
-                <section class="my-2">
+                <section class="mt-4 mb-3">
                     <button class="btn btn-success">Update Campground</button>
                 </section>
                 <section class="my-2">
-                    <a href="/campgrounds">Back to Campgrounds</a>
+                    <a href="/campgrounds/<%=camp.id%>">Cancel</a>
                 </section>
             </form>
         </div>
