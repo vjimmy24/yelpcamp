@@ -1,13 +1,13 @@
-<%- layout('./layouts/boilerplate') %>
+<% layout('./layouts/boilerplate') %>
 
     <div class="row">
-        <h1 class="text-center">Make a new Campground!</h1>
+        <h1 class="text-center">Want to list your Campground?</h1>
         <div class="col-6 offset-3">
-            <form action="/campgrounds" method="POST" novalidate class="validated-form">
+            <form action="/campgrounds" method="POST" novalidate class="needs-validation" enctype="multipart/form-data">
                 <!-- Location component -->
                 <div class="my-3">
                     <label class="form-label" for="title">Campground Name</label>
-                    <input class="form-control" type="text" name="title" id='title' required>
+                    <input class="form-control" type="text" name="camp[title]" id='title' required>
                     <div class="valid-feedback">
                         Looks good!
                     </div>
@@ -15,7 +15,7 @@
                 <!-- Location component -->
                 <div class="my-3">
                     <label class="form-label" for="location">Location</label>
-                    <input class="form-control" type="text" name="location" required>
+                    <input class="form-control" type="text" name="camp[location]" id="location" required>
                     <div class="valid-feedback">
                         Looks good!
                     </div>
@@ -23,7 +23,8 @@
                 <!-- Description component -->
                 <div class="my-3">
                     <label for="description">Description</label>
-                    <textarea class="form-control" type="text" name="description" required></textarea>
+                    <textarea class="form-control" type="text" name="camp[description]" id="description"
+                        required></textarea>
 
                 </div>
                 <!-- Price component -->
@@ -31,18 +32,19 @@
                     <label class="mb-1" for="price">Campground Price</label>
                     <div class="input-group">
                         <span class=" input-group-text" id="price-label">$</span>
-                        <input type="text" class="form-control" placeholder="0.00" aria-label="Username" name="price"
-                            id="price" aria-describedby="price-label" required>
+                        <input type="text" class="form-control" placeholder="0.00" aria-label="Username"
+                            name="camp[price]" id="price" aria-describedby="price-label" required>
                     </div>
                 </div>
+                <input type="file" name="image" multiple>
                 <!-- Image component -->
-                <div class="my-3">
+                <!-- <div class="my-3">
                     <label for="image" class="form-label">Want to add an image? Enter a URL!</label>
-                    <input class='form-control' type="text" name="image" required>
+                    <input class='form-control' type="text" name="camp[image]" id="image" required>
                     <div class="valid-feedback">
                         Looks good!
                     </div>
-                </div>
+                </div> -->
                 <!-- Submit -->
                 <button class="btn btn-success  mb-2">Submit</Button>
 
