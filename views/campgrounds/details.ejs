@@ -1,135 +1,166 @@
-//SETUP PACKAGES
-const express = require('express');
-const mongoose = require('mongoose');
-const app = express();
-const path = require('path'); //makes sure 
-const methodOverride = require('method-override');
-const Campground = require('./models/campground');
-const engine = require('ejs-mate');
-const catchAsync = require('./utilities/catchAsync')
-const expressError = require('./utilities/expressError.js')
-const joi = require('joi')
-const { campgroundSchema, reviewSchema } = require('./schemas.js')
-const Review = require('./models/review')
-
-mongoose.connect('mongodb://localhost:27017/yelp-camp');
-
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'There was an error connecting to the database.'))
-db.once('open', () => {
-    console.log('Successfully Connected to Database!')
-})
-
-
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-app.use(methodOverride('_method'))
-app.engine('ejs', engine);
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
-
-const validateCampground = (req, res, next) => {
-    const { error } = campgroundSchema.validate(req.body)
-    if (error) {
-        const msg = error.details.map(el => el.message).join(',')
-        throw new expressError(msg, 400)
-    } else {
-        next();
-    }
-}
-
-const validateReview = (req, res, next) => {
-    const { error } = reviewSchema.validate(req.body)
-    if (error) {
-        const msg = error.details.map(el => el.message).join(',')
-        throw new expressError(msg, 400)
-    } else {
-        next();
-    }
-}
-
-app.listen(3000, () => {
-    console.log('Listening on Port 3000...')
-})
-
-
-app.get('/', (req, res) => {
-    res.render('home.ejs')
-})
-
-
-//CREATE NEW CAMPGROUND
-app.get('/campgrounds/new', (req, res) => {
-    res.render('campgrounds/new.ejs')
-})
-
-app.post('/campgrounds', validateCampground, catchAsync(async (req, res, next) => {
-    // if (!req.body) throw new expressError('Invalid Campground Data', 400);
-    const newCamp = new Campground(req.body);
-    await newCamp.save()
-    res.redirect(`/campgrounds/${newCamp._id}`)
-}))
-
-//CAMPGROUNDS INDEX
-app.get('/campgrounds', catchAsync(async (req, res) => {
-    const campgrounds = await Campground.find();
-    res.render('campgrounds/index.ejs', { campgrounds })
-}))
-
-//DETAILS PAGE FOR SPECIFIC CAMPGROUNDS
-app.get('/campgrounds/:id', catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const camp = await Campground.findById(id).populate('reviews');
-    console.log(camp)
-    res.render('campgrounds/details.ejs', { id, camp });
-}))
-
-//EDIT CAMPGROUNDS
-app.get('/campgrounds/:id/edit', catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const camp = await Campground.findById(id);
-    res.render('campgrounds/edit.ejs', { id, camp })
-}))
-app.put('/campgrounds/:id', validateCampground, catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const newCamp = await Campground.findByIdAndUpdate(id, req.body);
-    res.redirect(`/campgrounds/${newCamp._id}`)
-}))
-//DELETE CAMPGROUNDS
-app.delete('/campgrounds/:id', catchAsync(async (req, res) => {
-    const { id } = req.params;
-    await Campground.findByIdAndDelete(id);
-    res.redirect('/campgrounds')
-}))
-
-//REVIEWS
-app.delete('/campgrounds/:id/reviews/:reviewId', catchAsync(async (req, res) => {
-    const { reviewId, id } = req.params;
-    await Campground.findByIdAndUpdate(id, { $pull: { reviews: reviewId } })
-    await Review.findByIdAndDelete(reviewId);
-    res.redirect(`/campgrounds/${id}`)
-}))
-app.post('/campgrounds/:id/reviews', catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const camp = await Campground.findById(id)
-    const review = new Review(req.body.review)
-    camp.reviews.push(review);
-    await review.save()
-    await camp.save()
-    res.redirect(`/campgrounds/${camp._id}`)
-}))
+<%- layout('./layouts/boilerplate') %>
+    <link rel="stylesheet" href="/stylesheets/stars.css">
 
 
 
-app.all('*', (req, res, next) => {
-    next(new expressError('Page Not Found', 404))
-})
+    <div class="row">
+        <div class="col-6 mt-2">
+            <div id="campgroundCarousel" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                    <% camp.images.forEach((image,index)=> { %>
+                        <div class="carousel-item <%= index === 0 ? " active" : '' %>">
+                            <img class="d-block w-100" src="<%=image.url%>" alt="">
+                        </div>
+                        <% }) %>
+                            <% if (camp.images.length> 1) { %>
+                                <a class=" carousel-control-prev" href="#campgroundCarousel" role="button"
+                                    data-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="sr-only"></span>
+                                </a>
+                                <a class="carousel-control-next" href="#campgroundCarousel" role="button"
+                                    data-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="sr-only"></span>
+                                </a>
+                                <% } %>
+                </div>
+            </div>
+            <div class="card my-2">
 
-app.use((err, req, res, next) => {
-    const { statusCode = 500, message = 'Oops, something went wrong!' } = err;
-    if (!err.message) err.message = 'Oops, something went wrong!'
-    res.status(statusCode).render('error.ejs', { err });
-})
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <%=camp.title%>
+                    </h5>
+                    <p class="card-text">
+                        <%=camp.description%>
+                    </p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        <h5>Location</h5>
+                        <p>
+                            <%=camp.location%>
+                        </p>
+                        <p class="list-group list-item-muted">Listed by:
+                            <%=camp.author[0].username%>
+                        </p>
+                    </li>
+                    <li class="list-group-item">
+                        <h5>Price</h5>
+                        <div class="card-text">
+                            <p>
+                                $<%=camp.price%>/Night
+                            </p>
+                        </div>
+                    </li>
+                </ul>
+                <% if(loggedInUser && camp.author[0].equals(loggedInUser._id)) {%>
+                    <div class="card-body">
+                        <a href="/campgrounds/<%=camp._id%>/edit" class="card-link btn btn-primary">Edit
+                            Campground</a>
+                        <form class="d-inline" action="/campgrounds/<%=camp._id%>?_method=DELETE" method="POST">
+                            <button class="btn btn-danger">Delete Campground</button>
+                        </form>
+                    </div>
+                    <% } %>
+            </div>
 
-//IMAGE URL https://source.unsplash.com/collection/483251
+        </div>
+        <div class="col-6">
+
+            <div class="my-3">
+                <H2>Reviews</H2>
+                <% for(let review of camp.reviews) { %>
+                    <div class="card">
+                        <div class=>
+                            <div class=" card-body">
+                                <h5 class="card-title">
+                                    <h5 class="card-title">
+                                        <%= review.author.username%>
+                                    </h5>
+
+                                    <p class="starability-result" data-rating="<%=review.rating%>">
+                                        Rated: <%= review.rating %>
+                                    </p>
+                                </h5>
+                                <p class="card-text">
+                                    <%=review.body%>
+                                </p>
+
+                                <% if(loggedInUser && review.author.equals(loggedInUser._id)) { %>
+                                    <form action="/campgrounds/<%=camp._id%>/reviews/<%=review._id%>?_method=DELETE"
+                                        method="POST">
+                                        <button class="btn btn-sm btn-danger">Delete</button>
+                                    </form>
+                                    <% } %>
+                            </div>
+                        </div>
+                    </div>
+
+                    <%}%>
+            </div>
+            <div>
+                <% if(camp.reviews.length===0){ %>
+                    <% if(!loggedInUser) { %>
+                        <a href="/login">
+                            <h6>No reviews yet, want to be the first?</h6>
+                        </a>
+                        <% } %>
+                            <% } else { %>
+                                <h3 class="mb-3">Want to leave a review?</h3>
+                                <% } %>
+            </div>
+
+
+            <% if(loggedInUser) { %>
+                <% if(camp.reviews.length===0) {%>
+                    <h6 class="mb-3">No reviews yet, be the first!</h6>
+                    <% } %>
+                        <div class="card">
+                            <div class="card-body pt-0"></div>
+                            <form action=" /campgrounds/<%=camp._id%>/reviews" method="POST" novalidate
+                                class="validated-form">
+                                <div>
+                                    <div class="mx-3">
+                                        <fieldset class="starability-basic">
+                                            <legend>Rating:</legend>
+                                            <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+                                            <label for="first-rate1" title="Terrible">1 star</label>
+                                            <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+                                            <label for="first-rate2" title="Not good">2 stars</label>
+                                            <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+                                            <label for="first-rate3" title="Average">3 stars</label>
+                                            <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+                                            <label for="first-rate4" title="Very good">4 stars</label>
+                                            <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+                                            <label for="first-rate5" title="Amazing">5 stars</label>
+                                        </fieldset>
+                                    </div>
+                                    <div class="my-2 mx-3">
+                                        <label class='form-label' for="body">
+                                            <h4>Review</h4>
+                                        </label>
+                                        <textarea class='form-control' name="review[body]" id="body" cols="30" rows="3"
+                                            required></textarea>
+                                        <div class="valid-feedback">
+                                            Looks good!
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-success my-3 mx-3">Submit</button>
+                            </form>
+                            <!-- <label class='form-label' for="rating">Rating</label>
+                            <input class='form-range' type="range" name="review[rating]" id="rating" min="1" max="5"
+                                required> -->
+                        </div>
+
+        </div>
+
+        <% }%>
+    </div>
+
+    </div>
+
+    </div>
+    </div>
+    </div>
