@@ -2,9 +2,10 @@
     <link rel="stylesheet" href="/stylesheets/stars.css">
 
 
-
+    </style>
     <div class="row">
         <div class="col-6 mt-2">
+            <div id='map' style='width: 400px; height: 300px;'></div>
             <div id="campgroundCarousel" class="carousel slide" data-ride="carousel">
                 <div class="carousel-inner">
                     <% camp.images.forEach((image,index)=> { %>
@@ -164,3 +165,10 @@
     </div>
     </div>
     </div>
+
+    <script>
+        const mapToken = '<%- process.env.MAPBOX_TOKEN %>';
+        const camp = <%- JSON.stringify(camp) %> 
+    </script>
+
+    <script src="/js/detailsMap.js"></script>
