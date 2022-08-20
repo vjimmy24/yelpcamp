@@ -1,7 +1,7 @@
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
 };
-console.log(process.env.SECRET)
+
 
 //SETUP PACKAGES
 const express = require('express');
@@ -18,9 +18,16 @@ const flash = require('connect-flash');
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
 const User = require('./models/user.js')
+const mongoSanitize = require('express-mongo-sanitize')
+const helmet = require('helmet')
+const {scriptSrcUrls, styleSrcUrls, connectSrcUrls, fontSrcUrls} = require('./utilities/helmetDepens')
+const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/yelp-camp'
 
+const mongoStore = require('connect-mongo');
+const secret = process.env.SECRET || 'weirdsecret'
 
-mongoose.connect('mongodb://localhost:27017/yelp-camp', {
+// 'mongodb://localhost:27017/yelp-camp'
+mongoose.connect(dbUrl, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
@@ -33,6 +40,28 @@ db.once('open', () => {
 
 const app = express();
 
+app.use(helmet());
+
+app.use(
+    helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc: [],
+            connectSrc: ["'self'", ...connectSrcUrls],
+            scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+            styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+            workerSrc: ["'self'", "blob:"],
+            objectSrc: [],
+            imgSrc: [
+                "'self'",
+                "blob:",
+                "data:",
+                "https://res.cloudinary.com/digfn29ss/",
+                "https://images.unsplash.com/",
+            ],
+            fontSrc: ["'self'", ...fontSrcUrls],
+        },
+    })
+);
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -41,14 +70,30 @@ app.engine('ejs', engine);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(mongoSanitize());
 
+const store = mongoStore.create({
+    mongoUrl: dbUrl, 
+    crypto: {
+        secret
+    },
+    touchAfter: 24 * 60 * 60
+});
+
+store.on('error', (e)=> {
+    console.log('SESSION STORE ERROR', e)
+})
 
 const sessionConfig = {
-    secret: 'weirdSecret',
+    store,
+    name: 'cenmxy',
+    secret,
     resave: false,
     saveUninitialized: true,
     cookie: {
         httpOnly: true,
+        //SECURE WHEN DEPLOYED
+        // secure: true, 
         expires: Date.now() + 6.048e8,
         maxAge: 6.048e8
     },
@@ -63,33 +108,7 @@ passport.use(new LocalStrategy(User.authenticate()));
 
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
-// app.use(session(sessionConfig))
-// app.use(flash());
 
-// app.use(passport.initialize());
-// app.use(passport.session());
-
-// passport.use(new LocalStrategy(
-//     function (email, password, done) {
-//         User.findOne({ email: email }, function (err, user) {
-//             if (err) { return done(err); }
-//             if (!user) { return done(null, false); }
-//             if (!user.verifyPassword(password)) { return done(null, false); }
-//             return done(null, user);
-//         });
-//     }
-// ));
-// // passport.use(new LocalStrategy(User.authenticate('local')));
-
-// passport.serializeUser(function (user, done) {
-//     done(null, user.id);
-// });
-
-// passport.deserializeUser(function (id, done) {
-//     User.findById(id, function (err, user) {
-//         done(err, user);
-//     });
-// });
 
 app.use((req, res, next) => {
     res.locals.loggedInUser = req.user;
@@ -118,8 +137,8 @@ app.use((err, req, res, next) => {
     res.status(statusCode).render('error.ejs', { err });
 })
 
-//IMAGE URL https://source.unsplash.com/collection/483251
+const port = process.env.PORT || 3000
 
-app.listen(3000, () => {
-    console.log('Listening on Port 3000...')
+app.listen(port, () => {
+    console.log(`Listening on Port ${port}...`)
 })
